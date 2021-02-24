@@ -23,5 +23,5 @@ module load TensorFlow/2.3.1-fosscuda-2019b-Python-3.7.4 scikit-learn/0.22.2.pos
 python ~/deep_learning_course/project_1/AlexNet.py --outdir ~/deep_learning_course/project_1/ \
                                                    --epochs 50 \
                                                    --optimizer 'adam' \
-                                                   --activation 'relu'
+                                                   --activation 'relu' \
                                                    --name 'adam-relu'
