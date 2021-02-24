@@ -4,10 +4,11 @@ import numpy as np
 import datetime
 import argparse
 import os
+import csv
 
 from tensorflow.python.keras.callbacks import History, CSVLogger
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten, Conv2D, MaxPooling2D, BatchNormalization
+from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten, Conv2D, MaxPooling2D, BatchNormalization, GaussianDropout
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
@@ -76,21 +77,21 @@ class AlexNet:
             BatchNormalization(),
             Activation(self.activation_function),
             # Add Dropout to prevent overfitting
-            Dropout(0.4),
+            GaussianDropout(0.4),
 
             #2nd Fully Connected Layer
             Dense(4096),
             BatchNormalization(),
             Activation(self.activation_function),
             #Add Dropout
-            Dropout(0.4),
+            GaussianDropout(0.4),
 
             #3rd Fully Connected Layer
             Dense(1000),
             BatchNormalization(),
             Activation(self.activation_function),
             #Add Dropout
-            Dropout(0.4),
+            GaussianDropout(0.4),
 
             #Output Layer
             Dense(10),
@@ -119,6 +120,9 @@ class AlexNet:
         Returns:
             History: Information about the model training. Useful for analysis and making graphs.
         """
+
+        # If we want to log the results, use Keras' callback functionality to write to a CSV file
+        # This gives us loss and accuracy data for the training and the validation data
         if log:
             run_time = datetime.datetime.now().isoformat(timespec='minutes')
             path = os.path.join(log_dir, 'alexnet_train_' + run_time + '.log')
@@ -146,18 +150,26 @@ class AlexNet:
             scalar | [scalar]: The results from evaluating the model
         """
 
+        print("Evaluating the model")
+
+        # Use Keras' built in evaluation. This has a callback parameter as well,
+        # but for some reason that doesn't seem to work
+        evaluation = self.model.evaluate(
+            x         = data, 
+            y         = labels
+        )
+
+        # Write output to file if needed
         if log:
             run_time = datetime.datetime.now().isoformat(timespec='minutes')
             path = os.path.join(log_dir, 'alexnet_test_' + run_time + '.log')
-            callbacks = [ CSVLogger(path, append=True, separator=',') ]
-        else:
-            callbacks = []
+            eval_dict = dict(zip(self.model.metrics_names, evaluation))
 
-        return self.model.evaluate(
-            x         = data, 
-            y         = labels,
-            callbacks = callbacks
-        )
+            with open(path, 'w') as csvfile:
+                writer = csv.writer(csvfile)
+                for key, val in eval_dict.items():
+                    writer.writerow([key, val])
+
 
 def main(args):
     if args.outdir:
