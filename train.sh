@@ -19,5 +19,8 @@ module purge
 # Load everything we need for TensorFlow (loads python, tensorflow and a lot more) and scikit
 module load TensorFlow/2.3.1-fosscuda-2019b-Python-3.7.4 scikit-learn/0.22.2.post1-fosscuda-2019b-Python-3.7.4
 
-# Train the network - argument is log directory
-python ~/deep_learning_course/project_1/AlexNet.py -o ~/deep_learning_course/project_1/
+# Train the network
+python ~/deep_learning_course/project_1/AlexNet.py --outdir ~/deep_learning_course/project_1/ \
+                                                   --epochs 50 \
+                                                   --optimizer 'adam' \
+                                                   --activation 'relu'

@@ -32,7 +32,7 @@ class AlexNet:
         self.model = self.__create_model()
 
         # Print the model summary
-        self.model.summary()
+        # self.model.summary()
 
     def __create_model(self) -> Sequential:
         """Initialize the AlexNet model with the parameters given. (private function)
@@ -159,7 +159,27 @@ class AlexNet:
             callbacks = callbacks
         )
 
-def main(output_directory):
+def main(args):
+    if args.outdir:
+        output_directory = args.outdir
+    else:
+        output_directory = './'
+    
+    if args.epochs:
+        epochs = args.epochs
+    else:
+        epochs = 50
+    
+    if args.optimizer:
+        optimizer = args.optimizer
+    else:
+        optimizer = 'adam'
+    
+    if args.activation:
+        activation_function = args.activation
+    else:
+        activation_function = 'relu'
+
     # Load CIFAR10 Data set
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
     
@@ -171,8 +191,11 @@ def main(output_directory):
     y_val   = to_categorical(y_val)
     y_test  = to_categorical(y_test)
 
-    # Create AlexNet instance w/ default parameters
-    alexnet = AlexNet()
+    # Create AlexNet instance
+    alexnet = AlexNet(
+        activation_function = activation_function,
+        optimizer           = optimizer
+    )
 
     # Train AlexNet
     alexnet.train(
@@ -180,7 +203,7 @@ def main(output_directory):
         training_labels   = y_train,
         validation_data   = x_val,
         validation_labels = y_val,
-        epochs            = 15,
+        epochs            = epochs,
         log               = True,
         log_dir           = output_directory
     )
@@ -196,12 +219,15 @@ def main(output_directory):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-o', '--outdir', help='The output directory for log files.', type=str)
+    parser.add_argument('-e', '--epochs', help='The number of epochs to train the model for.', type=int)
+    parser.add_argument('-m', '--optimizer', help='The optimizer to use.', type=str)
+    parser.add_argument('-a', '--activation', help='The activation function to use.', type=str)
     args = parser.parse_args()
 
     # ! When running on peregrine, output MUST go to /data/$USER/project/ or /home/$USER/project
     if args.outdir:
         print("Saving output to" + args.outdir)
-        main(args.outdir)
+        main(args)
     else:
         print("Saving output to default location")
         main("./")
