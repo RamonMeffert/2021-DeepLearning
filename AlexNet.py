@@ -107,7 +107,7 @@ class AlexNet:
 
         return model
 
-    def train(self, training_data, training_labels, validation_data, validation_labels, batch_size = 32, epochs = 10, log = False, log_dir = './logs/') -> History:
+    def train(self, training_data, training_labels, validation_data, validation_labels, run_name, batch_size = 32, epochs = 10, log = False, log_dir = './logs/') -> History:
         """Train the model.
 
         Args:
@@ -125,7 +125,7 @@ class AlexNet:
         # This gives us loss and accuracy data for the training and the validation data
         if log:
             run_time = datetime.datetime.now().isoformat(timespec='minutes')
-            path = os.path.join(log_dir, 'alexnet_train_' + run_time + '.log')
+            path = os.path.join(log_dir, 'alexnet_train_' + run_name + '_at_' + run_time + '.log')
             callbacks = [ CSVLogger(path, append=True, separator=',') ]
         else:
             callbacks = []
@@ -139,7 +139,7 @@ class AlexNet:
             callbacks       = callbacks
         )
 
-    def test(self, data, labels, log = False, log_dir = './logs/'):
+    def test(self, data, labels, run_name, log = False, log_dir = './logs/'):
         """Evaluate the model. Only makes sense after the model is trained.
 
         Args:
@@ -162,7 +162,7 @@ class AlexNet:
         # Write output to file if needed
         if log:
             run_time = datetime.datetime.now().isoformat(timespec='minutes')
-            path = os.path.join(log_dir, 'alexnet_test_' + run_time + '.log')
+            path = os.path.join(log_dir, 'alexnet_test_' + run_name + '_at_' + run_time + '.log')
             eval_dict = dict(zip(self.model.metrics_names, evaluation))
 
             with open(path, 'w') as csvfile:
@@ -192,6 +192,13 @@ def main(args):
     else:
         activation_function = 'relu'
 
+    if args.name:
+        run_name = args.name
+    elif args.optimizer:
+        run_name = args.optimizer
+    else:
+        run_name = 'new_run'
+
     # Load CIFAR10 Data set
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
     
@@ -217,7 +224,8 @@ def main(args):
         validation_labels = y_val,
         epochs            = epochs,
         log               = True,
-        log_dir           = output_directory
+        log_dir           = output_directory,
+        run_name          = run_name
     )
 
     # Evaluate AlexNet
@@ -225,7 +233,8 @@ def main(args):
         data   = x_test, 
         labels = y_test,
         log    = True,
-        log_dir = output_directory
+        log_dir = output_directory,
+        run_name = run_name
     )
 
 if __name__ == "__main__":
@@ -234,6 +243,7 @@ if __name__ == "__main__":
     parser.add_argument('-e', '--epochs', help='The number of epochs to train the model for.', type=int)
     parser.add_argument('-m', '--optimizer', help='The optimizer to use.', type=str)
     parser.add_argument('-a', '--activation', help='The activation function to use.', type=str)
+    parser.add_argument('-n', '--name', help='A semi-unique name for the run. Will be included in the generated log file to make it easier to find back results.', type=str)
     args = parser.parse_args()
 
     # ! When running on peregrine, output MUST go to /data/$USER/project/ or /home/$USER/project
