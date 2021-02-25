@@ -11,7 +11,7 @@
 
 # Run on 1 gpu, doesn't matter what type (no preference for v100 or k40)
 #SBATCH --partition=gpu
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:v100:1
 
 # Clean environment
 module purge
