@@ -2,8 +2,12 @@
 import tensorflow as tf
 import argparse
 import numpy as np
-from keras.datasets import cifar10
+import datetime
+import os
+import csv
+from tensorflow.keras.datasets import cifar10
 from tensorflow import Tensor
+from tensorflow.python.keras.callbacks import CSVLogger
 from tensorflow.keras.layers import Input, Conv2D, ReLU, BatchNormalization,\
                                     Add, AveragePooling2D, Flatten, Dense
 from tensorflow.keras.models import Model
@@ -98,16 +102,16 @@ def main(args):
         model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         #model.summary()
         run_time = datetime.datetime.now().isoformat(timespec='minutes')
-        path = os.path.join(log_dir, 'ResNet_train_' + optimizer + '_at_' + run_time + '.log')
+        path = os.path.join(output_directory, 'ResNet_train_' + optimizer + '_at_' + run_time + '.log')
         callbacks = [ CSVLogger(path, append=True, separator=',') ]
 
-        model.fit(trainX, trainy,  epochs=20, batch_size=64, verbose=1)
+        model.fit(trainX, trainy, callbacks=callbacks, epochs=20, batch_size=64, verbose=1)
         results = model.evaluate(testX, testy)[1]
 
         #save it
         run_time = datetime.datetime.now().isoformat(timespec='minutes')
-        path = os.path.join(log_dir, 'ResNet_test_' + optimizer + '_at_' + run_time + '.log')
-        eval_dict = dict(zip(self.model.metrics_names, evaluation))
+        path = os.path.join(output_directory, 'ResNet_test_' + optimizer + '_at_' + run_time + '.log')
+        eval_dict = dict(zip(model.metrics_names, results))
 
         with open(path, 'w') as csvfile:
             writer = csv.writer(csvfile)
