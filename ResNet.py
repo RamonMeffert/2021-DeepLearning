@@ -97,8 +97,22 @@ def main(args):
         model = create_res_net()
         model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         #model.summary()
+        run_time = datetime.datetime.now().isoformat(timespec='minutes')
+        path = os.path.join(log_dir, 'ResNet_train_' + optimizer + '_at_' + run_time + '.log')
+        callbacks = [ CSVLogger(path, append=True, separator=',') ]
+
         model.fit(trainX, trainy,  epochs=20, batch_size=64, verbose=1)
-        print(optimizer, model.evaluate(testX, testy)[1])
+        results = model.evaluate(testX, testy)[1]
+
+        #save it
+        run_time = datetime.datetime.now().isoformat(timespec='minutes')
+        path = os.path.join(log_dir, 'ResNet_test_' + optimizer + '_at_' + run_time + '.log')
+        eval_dict = dict(zip(self.model.metrics_names, evaluation))
+
+        with open(path, 'w') as csvfile:
+            writer = csv.writer(csvfile)
+            for key, val in eval_dict.items():
+                writer.writerow([key, val])
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
