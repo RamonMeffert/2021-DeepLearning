@@ -9,6 +9,7 @@ import csv
 from tensorflow.python.keras.callbacks import History, CSVLogger
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten, Conv2D, MaxPooling2D, BatchNormalization, GaussianDropout
+from tensorflow.keras.layers.experimental.preprocessing import Rescaling
 from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
@@ -47,7 +48,10 @@ class AlexNet:
         Returns:
             Sequential: A compiled model
         """
-        model = Sequential([            
+        model = Sequential([
+            # Normalize images
+            Rescaling(scale=1./255),
+
             # 1st Convolutional Layer
             Conv2D(filters=96, input_shape=(32,32,3), kernel_size=(11,11), strides=(4,4), padding='same'),
             BatchNormalization(),
