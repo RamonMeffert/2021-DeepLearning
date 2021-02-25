@@ -1,9 +1,7 @@
 
 import tensorflow as tf
-import keras
+import argparse
 import numpy as np
-import pandas as pd
-from matplotlib import pyplot
 from keras.datasets import cifar10
 from tensorflow import Tensor
 from tensorflow.keras.layers import Input, Conv2D, ReLU, BatchNormalization,\

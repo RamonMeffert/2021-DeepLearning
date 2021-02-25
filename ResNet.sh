@@ -21,4 +21,4 @@ module load TensorFlow/2.3.1-fosscuda-2019b-Python-3.7.4 scikit-learn/0.22.2.pos
 
 # Train the network
 python ~/DL/p1/2021-DeepLearning/ResNet.py --outdir ~/DL/p1/2021-DeepLearning/ \
-                                                   --name 'ResNet'
+                                           --name 'ResNet'
