@@ -13,7 +13,7 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
 class AlexNet:
-    def __init__(self, activation_function = 'relu', optimizer = 'adam'):
+    def __init__(self, activation_function = 'relu', optimizer = 'adam', dropout = 'reg'):
         """Create a new instance of an AlexNet model.
 
         Args:
@@ -28,6 +28,12 @@ class AlexNet:
 
         # Set the optimizer
         self.optimizer = optimizer
+
+        # Set the dropout type
+        if dropout == 'gauss':
+            self.dropout = GaussianDropout(0.4)
+        else:
+            self.dropout = Dropout(0.4)
 
         # Init the model
         self.model = self.__create_model()
@@ -77,21 +83,21 @@ class AlexNet:
             BatchNormalization(),
             Activation(self.activation_function),
             # Add Dropout to prevent overfitting
-            GaussianDropout(0.4),
+            self.dropout,
 
             #2nd Fully Connected Layer
             Dense(4096),
             BatchNormalization(),
             Activation(self.activation_function),
             #Add Dropout
-            GaussianDropout(0.4),
+            self.dropout,
 
             #3rd Fully Connected Layer
             Dense(1000),
             BatchNormalization(),
             Activation(self.activation_function),
             #Add Dropout
-            GaussianDropout(0.4),
+            self.dropout,
 
             #Output Layer
             Dense(10),
@@ -199,6 +205,11 @@ def main(args):
     else:
         run_name = 'new_run'
 
+    if args.dropout:
+        dropout = args.dropout
+    else:
+        dropout = 'reg'
+
     # Load CIFAR10 Data set
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
     
@@ -213,7 +224,8 @@ def main(args):
     # Create AlexNet instance
     alexnet = AlexNet(
         activation_function = activation_function,
-        optimizer           = optimizer
+        optimizer           = optimizer,
+        dropout             = dropout
     )
 
     # Train AlexNet
@@ -243,13 +255,9 @@ if __name__ == "__main__":
     parser.add_argument('-e', '--epochs', help='The number of epochs to train the model for.', type=int)
     parser.add_argument('-m', '--optimizer', help='The optimizer to use.', type=str)
     parser.add_argument('-a', '--activation', help='The activation function to use.', type=str)
+    parser.add_argument('-d', '--dropout', help='Whether to use guassian (\'gauss\') or regular (\'reg\') dropout.', type=str)
     parser.add_argument('-n', '--name', help='A semi-unique name for the run. Will be included in the generated log file to make it easier to find back results.', type=str)
     args = parser.parse_args()
 
     # ! When running on peregrine, output MUST go to /data/$USER/project/ or /home/$USER/project
-    if args.outdir:
-        print("Saving output to" + args.outdir)
-        main(args)
-    else:
-        print("Saving output to default location")
-        main("./")
+    main(args)

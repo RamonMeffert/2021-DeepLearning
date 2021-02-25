@@ -24,4 +24,5 @@ python ~/deep_learning_course/project_1/AlexNet.py --outdir ~/deep_learning_cour
                                                    --epochs 50 \
                                                    --optimizer 'adam' \
                                                    --activation 'relu' \
-                                                   --name 'adam-relu'
+                                                   --name 'adam-relu' \
+                                                   --dropout 'reg'
