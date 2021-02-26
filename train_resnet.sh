@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name="alexnet-relu-adam"
+#SBATCH --job-name="resnet-relu-adam"
 
 # Send an email when important events happen
 #SBATCH --mail-type=BEGIN,END,FAIL,TIME_LIMIT
